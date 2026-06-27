@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Immigration Transparency Platform</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#F5F3FC;
+  --surface:#FFFFFF;
+  --ink:#221F36;
+  --ink-soft:#6E6B8A;
+  --line:#E9E5F5;
+
+  --indigo:#5B4FE5;
+  --indigo-dark:#4339C2;
+  --indigo-soft:#ECE9FB;
+
+  --coral:#FF6452;
+  --coral-soft:#FFE4DE;
+
+  --amber:#FFA21F;
+  --amber-soft:#FFEFD6;
+
+  --mint:#16B58A;
+  --mint-soft:#D9F5EB;
+
+  --sky:#2BAEDB;
+  --sky-soft:#DEF3FA;
+
+  --radius-lg:20px;
+  --radius-md:14px;
+  --radius-sm:9px;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{
+  background:var(--bg);
+  font-family:'Inter',sans-serif;
+  color:var(--ink);
+  min-width:1180px;
+}
+h1,h2,h3,h4{font-family:'Sora',sans-serif;}
+button{font-family:inherit; cursor:pointer; border:none; background:none;}
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar{
+  width:240px;
+  flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--line);
+  padding:26px 18px;
+  display:flex;
+  flex-direction:column;
+  position:sticky;
+  top:0;
+  height:100vh;
+}
+.brand{
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:34px;
+  padding-left:6px;
+}
+.brand .mark{
+  width:30px; height:30px; border-radius:9px;
+  background:linear-gradient(135deg, var(--indigo), var(--sky));
+  flex-shrink:0;
+}
+.brand .word{font-weight:700; font-size:15px; letter-spacing:-0.01em;}
+.brand .word span{color:var(--indigo);}
+
+.nav{display:flex; flex-direction:column; gap:4px;}
+.nav-btn{
+  display:flex; align-items:center; gap:11px;
+  padding:11px 12px;
+  border-radius:11px;
+  font-size:13.5px;
+  font-weight:600;
+  color:var(--ink-soft);
+  text-align:left;
+  width:100%;
+  transition:background .15s, color .15s;
+}
+.nav-btn:hover{background:var(--indigo-soft); color:var(--indigo-dark);}
+.nav-btn.active{background:var(--indigo); color:#fff;}
+.nav-btn .ic{width:18px; height:18px; flex-shrink:0;}
+.nav-btn .ic svg{width:100%; height:100%;}
+
+.sidebar-spacer{flex:1;}
+
+.route-mini{
+  background:var(--indigo-soft);
+  border-radius:var(--radius-md);
+  padding:14px 14px;
+}
+.route-mini .lbl{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--indigo-dark); opacity:.75;
+  margin-bottom:8px;
+}
+.route-mini .step{font-size:13px; font-weight:700; color:var(--indigo-dark); margin-bottom:2px;}
+.route-mini .next{font-size:11px; color:var(--ink-soft);}
+
+/* ================= MAIN ================= */
+.main{
+  flex:1;
+  min-width:0;
+}
+
+/* sticky journey bar */
+.routebar{
+  position:sticky; top:0; z-index:20;
+  background:var(--surface);
+  border-bottom:1px solid var(--line);
+  padding:16px 40px;
+  display:flex;
+  align-items:center;
+  gap:0;
+}
+.rb-step{
+  display:flex; align-items:center; gap:10px;
+  padding:6px 14px 6px 6px;
+  border-radius:99px;
+  cursor:pointer;
+  transition:background .15s;
+}
+.rb-step:hover{background:var(--bg);}
+.rb-dot{
+  width:26px; height:26px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600;
+  border:2px solid var(--line);
+  color:var(--ink-soft);
+  background:var(--surface);
+  flex-shrink:0;
+}
+.rb-step.done .rb-dot{background:var(--mint); border-color:var(--mint); color:#fff;}
+.rb-step.now .rb-dot{background:var(--surface); border-color:var(--indigo); color:var(--indigo); box-shadow:0 0 0 4px var(--indigo-soft);}
+.rb-label{font-size:12.5px; font-weight:600;}
+.rb-step.now .rb-label{color:var(--indigo-dark);}
+.rb-step.done .rb-label{color:var(--ink-soft);}
+.rb-step.future .rb-label{color:#A9A6C2;}
+.rb-line{flex:1; height:2px; background:var(--line); margin:0 2px; min-width:24px; max-width:64px;}
+.rb-line.done{background:var(--mint);}
+
+.page{padding:30px 40px 60px; display:none;}
+.page.active{display:block;}
+
+.page-head{margin-bottom:26px;}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--indigo); font-weight:500;
+  margin-bottom:8px;
+}
+.page-head h1{font-size:28px; font-weight:700; letter-spacing:-0.01em;}
+.page-head p{font-size:13.5px; color:var(--ink-soft); margin-top:6px; max-width:560px; line-height:1.5;}
+
+/* ============ shared card bits ============ */
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-lg);
+  padding:22px;
+}
+.label-sm{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-soft); display:block; margin-bottom:10px;
+}
+.pill{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:11.5px; font-weight:700;
+  padding:5px 12px; border-radius:99px;
+  font-family:'IBM Plex Mono',monospace;
+}
+.pill-high{background:var(--coral-soft); color:#C2402F;}
+.pill-med{background:var(--amber-soft); color:#B5740E;}
+.pill-none{background:var(--mint-soft); color:#0E8C68;}
+.pill-indigo{background:var(--indigo-soft); color:var(--indigo-dark);}
+.pill-outline{background:transparent; border:1px solid var(--line); color:var(--ink-soft); font-weight:600;}
+
+/* ============ DASHBOARD ============ */
+.bento{
+  display:grid;
+  grid-template-columns:1.1fr 1fr 1fr;
+  gap:18px;
+  margin-bottom:18px;
+}
+.status-card{
+  background:linear-gradient(150deg, var(--indigo) 0%, #4339C2 100%);
+  color:#fff;
+  border:none;
+}
+.status-card .label-sm{color:#D6D2FA;}
+.status-card h2{font-size:24px; font-weight:700; margin-bottom:4px;}
+.status-card .meta{font-size:12.5px; color:#C9C4F5;}
+.status-card .progress-track{
+  margin-top:18px; height:6px; border-radius:99px; background:rgba(255,255,255,.18); overflow:hidden;
+}
+.status-card .progress-fill{height:100%; width:46%; background:#fff; border-radius:99px;}
+.status-card .progress-note{font-size:10.5px; color:#C9C4F5; margin-top:8px;}
+
+.impact-stack{display:flex; flex-direction:column; gap:10px;}
+.impact-tile{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 16px; border-radius:var(--radius-md);
+  cursor:pointer; transition:transform .12s;
+}
+.impact-tile:hover{transform:translateX(2px);}
+.impact-tile.high{background:var(--coral-soft);}
+.impact-tile.med{background:var(--amber-soft);}
+.impact-tile.none{background:var(--mint-soft);}
+.impact-tile .num{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:18px;}
+.impact-tile.high .num{color:#C2402F;}
+.impact-tile.med .num{color:#B5740E;}
+.impact-tile.none .num{color:#0E8C68;}
+.impact-tile .txt{font-size:12.5px; font-weight:600; color:var(--ink);}
+
+.update-row{
+  display:flex; justify-content:space-between; gap:10px;
+  padding:12px 0; border-bottom:1px solid var(--line);
+}
+.update-row:last-child{border-bottom:none;}
+.update-row p{font-size:13px; line-height:1.4; font-weight:500;}
+.update-row .when{font-size:10.5px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); white-space:nowrap;}
+
+.quick-row{display:flex; gap:14px;}
+.quick-link{
+  flex:1;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md);
+  padding:16px; display:flex; align-items:center; gap:12px;
+  transition:border-color .15s, background .15s;
+}
+.quick-link:hover{border-color:var(--indigo); background:var(--indigo-soft);}
+.quick-link .ic{width:30px; height:30px; border-radius:9px; background:var(--sky-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.quick-link .ic svg{width:16px; height:16px; color:var(--sky);}
+.quick-link .t{font-size:12.5px; font-weight:700;}
+.quick-link .s{font-size:11px; color:var(--ink-soft);}
+
+/* ============ JOURNEY ============ */
+.tabbar{display:flex; gap:8px; margin-bottom:22px;}
+.tabbtn{
+  padding:8px 16px; border-radius:99px; font-size:12.5px; font-weight:700;
+  background:var(--surface); border:1px solid var(--line); color:var(--ink-soft);
+}
+.tabbtn.active{background:var(--indigo); border-color:var(--indigo); color:#fff;}
+
+.timeline-row{display:flex; gap:16px;}
+.tl-card{
+  flex:1; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+  padding:18px; border-top:4px solid var(--line);
+}
+.tl-card.done{border-top-color:var(--mint);}
+.tl-card.now{border-top-color:var(--indigo);}
+.tl-card .tag{font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:10px; display:block;}
+.tl-card h4{font-size:15px; margin-bottom:6px;}
+.tl-card p{font-size:12px; color:var(--ink-soft); line-height:1.45;}
+
+.risk-list{display:flex; flex-direction:column; gap:12px;}
+.risk-card{
+  display:flex; gap:14px; align-items:flex-start;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md);
+  padding:16px; border-left:4px solid var(--coral);
+}
+.risk-card.amber{border-left-color:var(--amber);}
+.risk-card h4{font-size:13.5px; margin-bottom:4px;}
+.risk-card p{font-size:12.5px; color:var(--ink-soft); line-height:1.5;}
+
+.tabpanel{display:none;}
+.tabpanel.active{display:block;}
+
+/* ============ LIBRARY ============ */
+.lib-layout{display:flex; gap:26px;}
+.filter-rail{width:200px; flex-shrink:0; display:flex; flex-direction:column; gap:8px;}
+.filter-item{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 13px; border-radius:var(--radius-sm); font-size:12.5px; font-weight:600;
+  color:var(--ink-soft); border:1px solid transparent;
+}
+.filter-item.on{background:var(--indigo-soft); color:var(--indigo-dark);}
+.filter-item .ct{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:inherit; opacity:.7;}
+
+.lib-grid{flex:1; display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.policy-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md);
+  padding:18px; cursor:pointer; transition:box-shadow .15s, transform .15s;
+}
+.policy-card:hover{box-shadow:0 10px 24px -14px rgba(34,31,54,.25); transform:translateY(-2px);}
+.policy-card .top-row{display:flex; justify-content:space-between; margin-bottom:14px;}
+.policy-card h4{font-size:14px; line-height:1.3; margin-bottom:8px;}
+.policy-card .meta{font-size:11px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+
+/* ============ DETAIL ============ */
+.detail-layout{display:flex; gap:26px;}
+.detail-main{flex:1.4;}
+.detail-side{flex:1; display:flex; flex-direction:column; gap:16px;}
+.back-link{
+  display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700;
+  color:var(--indigo); margin-bottom:18px;
+}
+.detail-main h1{font-size:24px; margin-bottom:14px; line-height:1.25;}
+.detail-tags{display:flex; gap:8px; margin-bottom:22px;}
+.detail-section{margin-bottom:20px;}
+.detail-section p{font-size:13.5px; line-height:1.6; color:var(--ink);}
+.callout{
+  background:var(--indigo-soft); border-radius:var(--radius-md);
+  padding:16px 18px; font-size:13.5px; line-height:1.6; color:var(--indigo-dark);
+}
+.side-block h4{font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); margin-bottom:10px;}
+.source-link{
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:13px; font-weight:700; color:var(--indigo);
+}
+.related-row{font-size:12.5px; padding:9px 0; border-bottom:1px solid var(--line); font-weight:600; color:var(--ink);}
+.related-row:last-child{border-bottom:none;}
+
+/* ============ ASSISTANT ============ */
+.assist-layout{display:flex; gap:24px; height:560px;}
+.chat-pane{flex:1.6; display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden;}
+.chat-head{padding:16px 20px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px;}
+.chat-head .dotlive{width:8px; height:8px; border-radius:50%; background:var(--mint);}
+.chat-head .t{font-size:13px; font-weight:700;}
+.chat-body{flex:1; padding:20px; overflow:auto;}
+.chip-row{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
+.chip{
+  font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;
+  border:1px solid var(--indigo); color:var(--indigo);
+  padding:7px 13px; border-radius:99px;
+}
+.bubble{max-width:78%; padding:12px 15px; border-radius:14px; font-size:13px; line-height:1.5; margin-bottom:12px;}
+.bubble.bot{background:var(--bg); border:1px solid var(--line); border-bottom-left-radius:4px;}
+.bubble.user{background:var(--indigo); color:#fff; margin-left:auto; border-bottom-right-radius:4px;}
+.chat-input-row{padding:14px 18px; border-top:1px solid var(--line); display:flex; gap:10px;}
+.chat-input-row .fake-input{flex:1; background:var(--bg); border-radius:99px; padding:11px 16px; font-size:12.5px; color:var(--ink-soft);}
+.chat-input-row .send{width:38px; height:38px; border-radius:50%; background:var(--indigo); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+
+.context-pane{flex:1; display:flex; flex-direction:column; gap:14px;}
+.context-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md); padding:16px;}
+.context-card h4{font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); margin-bottom:10px;}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <div class="sidebar">
+    <div class="brand">
+      <div class="mark"></div>
+      <div class="word">Route<span>way</span></div>
+    </div>
+
+    <div class="nav">
+      <button class="nav-btn active" data-page="dashboard">
+        <span class="ic"><svg viewBox="0 0 18 18" fill="none"><rect x="1" y="1" width="7" height="7" rx="2" fill="currentColor"/><rect x="10" y="1" width="7" height="7" rx="2" fill="currentColor"/><rect x="1" y="10" width="7" height="7" rx="2" fill="currentColor"/><rect x="10" y="10" width="7" height="7" rx="2" fill="currentColor"/></svg></span>
+        Dashboard
+      </button>
+      <button class="nav-btn" data-page="journey">
+        <span class="ic"><svg viewBox="0 0 18 18" fill="none"><circle cx="3" cy="9" r="2.3" fill="currentColor"/><circle cx="9" cy="9" r="2.3" fill="currentColor"/><circle cx="15" cy="9" r="2.3" fill="currentColor"/></svg></span>
+        My Journey
+      </button>
+      <button class="nav-btn" data-page="library">
+        <span class="ic"><svg viewBox="0 0 18 18" fill="none"><rect x="1" y="2" width="16" height="3.4" rx="1.4" fill="currentColor"/><rect x="1" y="7.3" width="16" height="3.4" rx="1.4" fill="currentColor"/><rect x="1" y="12.6" width="11" height="3.4" rx="1.4" fill="currentColor"/></svg></span>
+        Policy Library
+      </button>
+      <button class="nav-btn" data-page="detail">
+        <span class="ic"><svg viewBox="0 0 18 18" fill="none"><rect x="2" y="1.5" width="14" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="5" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1.6"/><line x1="5" y1="9.5" x2="13" y2="9.5" stroke="currentColor" stroke-width="1.6"/><line x1="5" y1="13" x2="10" y2="13" stroke="currentColor" stroke-width="1.6"/></svg></span>
+        Policy Detail
+      </button>
+      <button class="nav-btn" data-page="assistant">
+        <span class="ic"><svg viewBox="0 0 18 18" fill="none"><path d="M9 1 L17 5.3 V12.7 L9 17 L1 12.7 V5.3 Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        AI Assistant
+      </button>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="route-mini">
+      <div class="lbl">Your current step</div>
+      <div class="step">Graduate Visa</div>
+      <div class="next">Next: Skilled Worker sponsorship</div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+
+    <!-- persistent route bar -->
+    <div class="routebar">
+      <div class="rb-step done" data-jump="journey">
+        <div class="rb-dot">✓</div>
+        <div class="rb-label">Student Visa</div>
+      </div>
+      <div class="rb-line done"></div>
+      <div class="rb-step now" data-jump="journey">
+        <div class="rb-dot">●</div>
+        <div class="rb-label">Graduate Visa</div>
+      </div>
+      <div class="rb-line"></div>
+      <div class="rb-step future" data-jump="journey">
+        <div class="rb-dot">3</div>
+        <div class="rb-label">Skilled Worker</div>
+      </div>
+      <div class="rb-line"></div>
+      <div class="rb-step future" data-jump="journey">
+        <div class="rb-dot">4</div>
+        <div class="rb-label">Settlement</div>
+      </div>
+    </div>
+
+    <!-- ================= DASHBOARD ================= -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-head">
+        <div class="eyebrow">Dashboard</div>
+        <h1>Good afternoon — here's where things stand</h1>
+        <p>A quick read on your status, what's changed recently, and what's actually worth your attention.</p>
+      </div>
+
+      <div class="bento">
+        <div class="card status-card">
+          <div class="label-sm">Current status</div>
+          <h2>Graduate Visa</h2>
+          <div class="meta">Step 2 of 4 · no sponsor required yet</div>
+          <div class="progress-track"><div class="progress-fill"></div></div>
+          <div class="progress-note">46% of the way to Settlement</div>
+        </div>
+
+        <div class="card">
+          <div class="label-sm">Policies affecting your route</div>
+          <div class="impact-stack">
+            <div class="impact-tile high" data-go="library"><span class="txt">High impact</span><span class="num">2</span></div>
+            <div class="impact-tile med" data-go="library"><span class="txt">Medium impact</span><span class="num">5</span></div>
+            <div class="impact-tile none" data-go="library"><span class="txt">No impact</span><span class="num">12</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="label-sm">Latest updates</div>
+          <div class="update-row"><p>Graduate route: sponsorship switch window opens earlier</p><span class="when">3d ago</span></div>
+          <div class="update-row"><p>Skilled Worker: salary threshold under review</p><span class="when">1w ago</span></div>
+          <div class="update-row"><p>Settlement: continuous residence rules clarified</p><span class="when">2w ago</span></div>
+        </div>
+      </div>
+
+      <div class="quick-row">
+        <div class="quick-link" data-go="journey">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M14 6l6 6-6 6"/></svg></div>
+          <div><div class="t">See your full timeline</div><div class="s">Every step, mapped out</div></div>
+        </div>
+        <div class="quick-link" data-go="library">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div>
+          <div><div class="t">Browse the policy library</div><div class="s">Organised by visa route</div></div>
+        </div>
+        <div class="quick-link" data-go="assistant">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.4 8.4 0 0 1-1.2 4.3L21 21l-5.3-1.4a8.5 8.5 0 1 1 5.3-8.1Z"/></svg></div>
+          <div><div class="t">Ask the assistant</div><div class="s">Get a straight answer</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= JOURNEY ================= -->
+    <div class="page" id="page-journey">
+      <div class="page-head">
+        <div class="eyebrow">My Journey</div>
+        <h1>From study to settlement</h1>
+        <p>Your full route, plus anything on the horizon worth planning around.</p>
+      </div>
+
+      <div class="tabbar">
+        <button class="tabbtn active" data-tab="timeline">Timeline</button>
+        <button class="tabbtn" data-tab="risks">Risks / Changes</button>
+      </div>
+
+      <div class="tabpanel active" id="tab-timeline">
+        <div class="timeline-row">
+          <div class="tl-card done">
+            <span class="tag">Completed</span>
+            <h4>Student Visa</h4>
+            <p>2022–2026. The route you're on now, coming to a close.</p>
+          </div>
+          <div class="tl-card now">
+            <span class="tag">You are here</span>
+            <h4>Graduate Visa</h4>
+            <p>Up to 2 years, no sponsor required. Best window to line up a sponsored role.</p>
+          </div>
+          <div class="tl-card">
+            <span class="tag">Planned</span>
+            <h4>Skilled Worker Visa</h4>
+            <p>Needs a licensed sponsor and a role at the right skill level.</p>
+          </div>
+          <div class="tl-card">
+            <span class="tag">Long-term</span>
+            <h4>Settlement (ILR)</h4>
+            <p>5 years' continuous residence, then indefinite leave to remain.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabpanel" id="tab-risks">
+        <div class="risk-list">
+          <div class="risk-card">
+            <div><h4>Sponsor licence checks have tightened</h4><p>First-time Skilled Worker sponsors are facing more scrutiny — worth raising early with any employer you're talking to.</p></div>
+          </div>
+          <div class="risk-card amber">
+            <div><h4>Graduate visa can't be extended</h4><p>It's a one-time route. Build your Skilled Worker plan well before it runs out, not at the deadline.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= LIBRARY ================= -->
+    <div class="page" id="page-library">
+      <div class="page-head">
+        <div class="eyebrow">Policy Library</div>
+        <h1>Browse by route</h1>
+        <p>Filtered to the categories that touch your route first.</p>
+      </div>
+
+      <div class="lib-layout">
+        <div class="filter-rail">
+          <div class="filter-item on">Student Visa <span class="ct">14</span></div>
+          <div class="filter-item">Work Visa <span class="ct">23</span></div>
+          <div class="filter-item">Family Visa <span class="ct">9</span></div>
+          <div class="filter-item">Settlement <span class="ct">6</span></div>
+        </div>
+
+        <div class="lib-grid">
+          <div class="policy-card" data-go="detail">
+            <div class="top-row"><span class="pill pill-high">High</span><span class="pill pill-outline">Work Visa</span></div>
+            <h4>Graduate route: sponsorship switch window</h4>
+            <div class="meta">Updated 3 days ago</div>
+          </div>
+          <div class="policy-card" data-go="detail">
+            <div class="top-row"><span class="pill pill-med">Medium</span><span class="pill pill-outline">Work Visa</span></div>
+            <h4>Skilled Worker: salary threshold under review</h4>
+            <div class="meta">Updated 1 week ago</div>
+          </div>
+          <div class="policy-card" data-go="detail">
+            <div class="top-row"><span class="pill pill-none">None</span><span class="pill pill-outline">Settlement</span></div>
+            <h4>Continuous residence rules clarified</h4>
+            <div class="meta">Updated 2 weeks ago</div>
+          </div>
+          <div class="policy-card" data-go="detail">
+            <div class="top-row"><span class="pill pill-med">Medium</span><span class="pill pill-outline">Student Visa</span></div>
+            <h4>Course switching now needs CAS reissue</h4>
+            <div class="meta">Updated 3 weeks ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= DETAIL ================= -->
+    <div class="page" id="page-detail">
+      <button class="back-link" data-go="library">← Back to library</button>
+
+      <div class="detail-layout">
+        <div class="detail-main">
+          <h1>Graduate route: sponsorship switch window</h1>
+          <div class="detail-tags">
+            <span class="pill pill-high">High impact</span>
+            <span class="pill pill-outline">Work Visa</span>
+          </div>
+
+          <div class="detail-section">
+            <span class="label-sm">What changed?</span>
+            <p>Graduate visa holders can now begin the move to a sponsored role earlier in their visa period, instead of waiting for a fixed point near expiry.</p>
+          </div>
+          <div class="detail-section">
+            <span class="label-sm">When does it start?</span>
+            <p><span class="pill pill-indigo">From the next intake</span></p>
+          </div>
+          <div class="detail-section">
+            <span class="label-sm">Who is affected?</span>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <span class="pill pill-outline">Graduate visa holders</span>
+              <span class="pill pill-outline">Recent graduates</span>
+            </div>
+          </div>
+          <div class="detail-section">
+            <span class="label-sm">How this affects your route</span>
+            <div class="callout">You're on track to reach this exact step. This shortens the gap between your Graduate Visa and Skilled Worker Visa — worth lining up sponsor conversations sooner.</div>
+          </div>
+        </div>
+
+        <div class="detail-side">
+          <div class="card side-block">
+            <h4>Official source</h4>
+            <div class="source-link">GOV.UK — Graduate visa guidance <span>↗</span></div>
+          </div>
+          <div class="card side-block">
+            <h4>Related policies</h4>
+            <div class="related-row">Skilled Worker: salary threshold under review</div>
+            <div class="related-row">Sponsor licence checks tightened</div>
+          </div>
+          <div class="card side-block">
+            <h4>Ask about this</h4>
+            <p style="font-size:12.5px; color:var(--ink-soft); margin-bottom:12px; line-height:1.5;">Get a plain-language read on what this means for you specifically.</p>
+            <span class="pill pill-indigo" data-go="assistant" style="cursor:pointer;">Open assistant →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ASSISTANT ================= -->
+    <div class="page" id="page-assistant">
+      <div class="page-head">
+        <div class="eyebrow">AI Assistant</div>
+        <h1>Ask about your route</h1>
+        <p>Answers are read against where you actually are — not a generic policy summary.</p>
+      </div>
+
+      <div class="assist-layout">
+        <div class="chat-pane">
+          <div class="chat-head"><span class="dotlive"></span><span class="t">Assistant · aware of your journey</span></div>
+          <div class="chat-body">
+            <div class="chip-row">
+              <span class="chip">Explain this policy</span>
+              <span class="chip">Compare changes</span>
+              <span class="chip">Ask about my situation</span>
+              <span class="chip">Find relevant updates</span>
+            </div>
+            <div class="bubble bot">Ask me anything about your route or a recent change — I'll read it against where you actually are.</div>
+            <div class="bubble user">Does the sponsorship switch change affect me?</div>
+            <div class="bubble bot">Yes — you're on the Graduate Visa step now, so this directly shortens your path to Skilled Worker sponsorship. Want the full breakdown?</div>
+          </div>
+          <div class="chat-input-row">
+            <div class="fake-input">Ask a question…</div>
+            <div class="send">→</div>
+          </div>
+        </div>
+
+        <div class="context-pane">
+          <div class="context-card">
+            <h4>Your route</h4>
+            <p style="font-size:13px;">Student Visa → <strong>Graduate Visa</strong> → Skilled Worker → Settlement</p>
+          </div>
+          <div class="context-card">
+            <h4>In this conversation</h4>
+            <div class="related-row">Graduate route: sponsorship switch window</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+  document.querySelector('.main').scrollTo({top:0, behavior:'smooth'});
+}
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => showPage(btn.dataset.page));
+});
+document.querySelectorAll('[data-go]').forEach(el => {
+  el.addEventListener('click', () => showPage(el.dataset.go));
+});
+document.querySelectorAll('[data-jump]').forEach(el => {
+  el.addEventListener('click', () => showPage(el.dataset.jump));
+});
+
+document.querySelectorAll('.tabbtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabbtn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
